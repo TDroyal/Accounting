@@ -15,13 +15,13 @@
       </el-menu>
       <div class="sidebar-footer">
         <el-button type="primary" :icon="Plus" @click="$router.push('/transactions/new')">记一笔</el-button>
-        <el-button text :icon="SwitchButton" @click="onLogout">登出</el-button>
       </div>
     </el-aside>
 
     <el-container>
-      <el-header v-if="!isMobile" class="topbar">
+      <el-header v-if="isMobile" class="mobile-topbar">
         <span class="title">{{ pageTitle }}</span>
+        <UserAvatar :username="username" @logout="onLogout" />
       </el-header>
       <el-main class="content">
         <router-view />
@@ -42,15 +42,19 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { PieChart, TrendCharts, DataLine, List, Files, Plus, SwitchButton, Wallet, CreditCard } from '@element-plus/icons-vue'
+import { PieChart, TrendCharts, DataLine, List, Files, Plus, Wallet, CreditCard } from '@element-plus/icons-vue'
 import { useResponsive } from '@/composables/useResponsive'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessageBox } from 'element-plus'
+import UserAvatar from '@/components/UserAvatar.vue'
 
 const route = useRoute()
 const router = useRouter()
 const { isMobile } = useResponsive()
 const auth = useAuthStore()
+
+// 用户名（目前无用户名接口，先用占位；登录态下展示）
+const username = computed(() => auth.userId ? `用户 ${auth.userId}` : '我')
 
 // 当前激活菜单
 const activeMenu = computed(() => {
@@ -79,19 +83,40 @@ async function onLogout() {
 
 <style scoped>
 .main-layout { height: 100vh; }
-.sidebar { background: #fff; border-right: 1px solid #e6e8eb; display: flex; flex-direction: column; }
-.logo { padding: 20px 16px; font-size: 18px; font-weight: 700; color: var(--color-primary); }
-.sidebar .el-menu { border-right: none; flex: 1; }
+.sidebar {
+  background: linear-gradient(180deg, #fff0f5, #ffffff);
+  border-right: 1px solid #ffd0e0;
+  display: flex; flex-direction: column;
+}
+.logo {
+  padding: 22px 16px; font-size: 19px; font-weight: 700;
+  color: #ff6f9c; text-align: center;
+  letter-spacing: 0.5px;
+}
+.sidebar .el-menu { border-right: none; flex: 1; background: transparent; }
 .sidebar-footer { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-.topbar { background: #fff; border-bottom: 1px solid #e6e8eb; display: flex; align-items: center; }
-.topbar .title { font-size: 18px; font-weight: 600; }
+
+.topbar {
+  background: #fff; border-bottom: 1px solid #ffd0e0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+}
+.topbar .title { font-size: 18px; font-weight: 600; color: #5a3d4a; }
+
+.mobile-topbar {
+  background: #fff; border-bottom: 1px solid #ffd0e0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; height: 52px;
+}
+.mobile-topbar .title { font-size: 17px; font-weight: 600; color: #5a3d4a; }
+
 .content { padding: 0; overflow-y: auto; }
 
 /* 移动端 */
 .main-layout.mobile .content { padding-bottom: 64px; }
 .mobile-tabbar {
   position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
-  background: #fff; border-top: 1px solid #e6e8eb;
+  background: #fff; border-top: 1px solid #ffd0e0;
   display: flex; justify-content: space-around; align-items: center;
   z-index: 100;
 }

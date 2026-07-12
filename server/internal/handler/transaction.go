@@ -120,10 +120,10 @@ func (h *TransactionHandler) Export(c *gin.Context) {
 		response.OK(c, rows)
 		return
 	}
-	// CSV
+	// CSV：加 UTF-8 BOM，避免 Excel 打开中文乱码
 	c.Header("Content-Disposition", `attachment; filename="accounting.csv"`)
 	c.Header("Content-Type", "text/csv; charset=utf-8")
-	c.String(200, toCSV(rows))
+	c.String(200, "\uFEFF"+toCSV(rows))
 }
 
 // parseUserID 把字符串 userID 转回 uint64（来自 JWT sub）。
