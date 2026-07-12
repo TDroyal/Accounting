@@ -19,11 +19,15 @@ type UserRepo interface {
 
 type userRepo struct{ db *gorm.DB }
 
+// NewUserRepo 构造基于 GORM 的实现。
 func NewUserRepo(db *gorm.DB) UserRepo { return &userRepo{db: db} }
 
+// Create 新建用户。
 func (r *userRepo) Create(ctx context.Context, u *model.User) error {
 	return r.db.WithContext(ctx).Create(u).Error
 }
+
+// FindByUsername 按用户名查询（登录用）。
 func (r *userRepo) FindByUsername(ctx context.Context, username string) (*model.User, error) {
 	var u model.User
 	err := r.db.WithContext(ctx).Where("username = ?", username).First(&u).Error
@@ -32,6 +36,8 @@ func (r *userRepo) FindByUsername(ctx context.Context, username string) (*model.
 	}
 	return &u, nil
 }
+
+// FindByID 按主键查询。
 func (r *userRepo) FindByID(ctx context.Context, id uint64) (*model.User, error) {
 	var u model.User
 	err := r.db.WithContext(ctx).First(&u, id).Error
@@ -54,8 +60,10 @@ type CategoryRepo interface {
 
 type categoryRepo struct{ db *gorm.DB }
 
+// NewCategoryRepo 构造基于 GORM 的实现。
 func NewCategoryRepo(db *gorm.DB) CategoryRepo { return &categoryRepo{db: db} }
 
+// ListByUser 查询用户已启用分类（按 sort、id 排序）。
 func (r *categoryRepo) ListByUser(ctx context.Context, userID uint64) ([]model.Category, error) {
 	var list []model.Category
 	err := r.db.WithContext(ctx).
@@ -64,20 +72,24 @@ func (r *categoryRepo) ListByUser(ctx context.Context, userID uint64) ([]model.C
 	return list, err
 }
 
+// Create 新增分类。
 func (r *categoryRepo) Create(ctx context.Context, c *model.Category) error {
 	return r.db.WithContext(ctx).Create(c).Error
 }
 
+// Update 按用户隔离更新指定字段。
 func (r *categoryRepo) Update(ctx context.Context, userID, id uint64, fields map[string]interface{}) error {
 	return r.db.WithContext(ctx).Model(&model.Category{}).
 		Where("id = ? AND user_id = ?", id, userID).Updates(fields).Error
 }
 
+// UpdateStatus 仅更新 status 字段（启用/禁用）。
 func (r *categoryRepo) UpdateStatus(ctx context.Context, userID, id uint64, status int8) error {
 	return r.db.WithContext(ctx).Model(&model.Category{}).
 		Where("id = ? AND user_id = ?", id, userID).Update("status", status).Error
 }
 
+// HasTransactions 判断该分类是否已被流水引用（决定能否删除）。
 func (r *categoryRepo) HasTransactions(ctx context.Context, userID, categoryID uint64) (bool, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&model.Transaction{}).
@@ -131,23 +143,33 @@ type AccountRepo interface {
 
 type accountRepo struct{ db *gorm.DB }
 
+// NewAccountRepo 构造基于 GORM 的实现。
 func NewAccountRepo(db *gorm.DB) AccountRepo { return &accountRepo{db: db} }
 
+// List 查询用户全部账户（按 sort、id 排序）。
 func (r *accountRepo) List(ctx context.Context, userID uint64) ([]model.Account, error) {
 	var list []model.Account
 	err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("sort ASC, id ASC").Find(&list).Error
 	return list, err
 }
+
+// Create 新增账户。
 func (r *accountRepo) Create(ctx context.Context, a *model.Account) error {
 	return r.db.WithContext(ctx).Create(a).Error
 }
+
+// Update 按用户隔离更新指定字段。
 func (r *accountRepo) Update(ctx context.Context, userID, id uint64, fields map[string]interface{}) error {
 	return r.db.WithContext(ctx).Model(&model.Account{}).
 		Where("id = ? AND user_id = ?", id, userID).Updates(fields).Error
 }
+
+// Delete 删除账户。
 func (r *accountRepo) Delete(ctx context.Context, userID, id uint64) error {
 	return r.db.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).Delete(&model.Account{}).Error
 }
+
+// FindByID 查询单个账户（按用户隔离）。
 func (r *accountRepo) FindByID(ctx context.Context, userID, id uint64) (*model.Account, error) {
 	var a model.Account
 	err := r.db.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).First(&a).Error
@@ -165,8 +187,10 @@ type BudgetRepo interface {
 
 type budgetRepo struct{ db *gorm.DB }
 
+// NewBudgetRepo 构造基于 GORM 的实现。
 func NewBudgetRepo(db *gorm.DB) BudgetRepo { return &budgetRepo{db: db} }
 
+// Upsert 按唯一键 (user_id, month) 插入或更新预算金额。
 func (r *budgetRepo) Upsert(ctx context.Context, b *model.Budget) error {
 	// 利用 UNIQUE(user_id, month) 做存在则更新
 	res := r.db.WithContext(ctx).Where("user_id = ? AND month = ?", b.UserID, b.Month).

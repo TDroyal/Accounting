@@ -61,19 +61,23 @@ type TxQuery struct {
 
 type transactionRepo struct{ db *gorm.DB }
 
+// NewTransactionRepo 构造基于 GORM 的实现。
 func NewTransactionRepo(db *gorm.DB) TransactionRepo {
 	return &transactionRepo{db: db}
 }
 
+// Create 插入一条流水。
 func (r *transactionRepo) Create(ctx context.Context, t *model.Transaction) error {
 	return r.db.WithContext(ctx).Create(t).Error
 }
 
+// Update 按 id+user_id 更新指定字段（user_id 隔离防越权）。
 func (r *transactionRepo) Update(ctx context.Context, userID, id uint64, fields map[string]interface{}) error {
 	return r.db.WithContext(ctx).Model(&model.Transaction{}).
 		Where("id = ? AND user_id = ?", id, userID).Updates(fields).Error
 }
 
+// FindByID 查询单条流水（按用户隔离）。
 func (r *transactionRepo) FindByID(ctx context.Context, userID, id uint64) (*model.Transaction, error) {
 	var t model.Transaction
 	err := r.db.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).First(&t).Error
@@ -83,6 +87,7 @@ func (r *transactionRepo) FindByID(ctx context.Context, userID, id uint64) (*mod
 	return &t, nil
 }
 
+// List 分页查询流水，支持时间区间/分类/类型筛选，按时间倒序返回。
 func (r *transactionRepo) List(ctx context.Context, userID uint64, q TxQuery) ([]model.Transaction, int64, error) {
 	tx := r.db.WithContext(ctx).Model(&model.Transaction{}).Where("user_id = ?", userID)
 	if !q.From.IsZero() {
@@ -116,6 +121,7 @@ func (r *transactionRepo) List(ctx context.Context, userID uint64, q TxQuery) ([
 	return list, total, err
 }
 
+// SoftDelete 软删除一条流水（写入 deleted_at）。
 func (r *transactionRepo) SoftDelete(ctx context.Context, userID, id uint64) error {
 	return r.db.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).
 		Delete(&model.Transaction{}).Error

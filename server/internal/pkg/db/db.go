@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// NewMySQL 初始化 GORM（utf8mb4）。
+// NewMySQL 初始化 GORM 连接（utf8mb4），按 level 设置日志级别，配置连接池。
 func NewMySQL(dsn string, level string) (*gorm.DB, error) {
 	gormLevel := logger.Silent
 	switch level {
@@ -39,7 +39,7 @@ func NewMySQL(dsn string, level string) (*gorm.DB, error) {
 	return db, nil
 }
 
-// NewRedis 初始化 Redis 客户端。
+// NewRedis 初始化 Redis 客户端并 Ping 验证连通性。
 func NewRedis(addr, password string, db int) (*redis.Client, error) {
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addr,
