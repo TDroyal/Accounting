@@ -19,6 +19,10 @@
     </el-aside>
 
     <el-container>
+      <el-header v-if="!isMobile" class="topbar">
+        <span class="title">{{ pageTitle }}</span>
+        <UserAvatar :username="username" @logout="onLogout" />
+      </el-header>
       <el-header v-if="isMobile" class="mobile-topbar">
         <span class="title">{{ pageTitle }}</span>
         <UserAvatar :username="username" @logout="onLogout" />
