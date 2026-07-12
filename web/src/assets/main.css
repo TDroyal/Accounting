@@ -1,0 +1,48 @@
+/* 全局样式：响应式基础 + 主题色 */
+:root {
+  --color-primary: #409eff;
+  --color-bg: #f5f7fa;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--color-bg);
+}
+
+.page {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.chart-box {
+  width: 100%;
+  height: 320px;
+}
+
+/* 移动端紧凑 */
+@media (max-width: 767px) {
+  .page { padding: 8px; }
+  .stat-value { font-size: 22px; }
+  .chart-box { height: 260px; }
+}
