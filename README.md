@@ -8,22 +8,22 @@
 - **省得下**：预算控制 + 分类占比，识别可压缩支出。
 
 ## 技术栈
-- **前端**：Vue 3 + Vite + Pinia + Vue Router + ECharts（响应式 SPA）
+- **前端**：Vue 3 + Vite + Pinia + Vue Router + ECharts（响应式 SPA，后续阶段）
 - **后端**：Gin（Go）
-- **存储**：MySQL 8 + Redis 7
-- **部署**：Docker Compose + Nginx
+- **存储**：MySQL 8 + Redis 7（本机直接运行，不使用 Docker）
+- **部署**：本地单机直连；生产可加 Nginx 做 TLS 终止
 
 ## 仓库结构
 ```
 Accounting/
 ├── docs/        # 需求与开发文档（见下方索引）
+├── server/      # 后端工程（Gin + GORM，已实现）
 ├── web/         # 前端工程（后续 feat 提交实现）
-├── server/      # 后端工程（后续 feat 提交实现）
-├── deploy/      # 部署配置（docker-compose / nginx / Dockerfile）
+├── deploy/      # 部署配置（未来可选 Docker，当前未实现）
 └── scripts/     # 辅助脚本
 ```
 
-> 当前阶段为**文档基线**，`web/` 与 `server/` 为占位，将在后续提交中逐步实现功能。
+> 后端工程 `server/` 已实现（鉴权/记账/分类/统计/预算/账户 + 单测），本地直连本机 MySQL+Redis 运行。
 
 ## 文档索引
 | 文档 | 内容 |
@@ -37,19 +37,18 @@ Accounting/
 | [07-可视化与统计设计](./docs/07-可视化与统计设计.md) | 日/月/年图表、统计 SQL、缓存策略 |
 | [08-开发与部署文档](./docs/08-开发与部署文档.md) | 环境、本地启动、构建、Docker、CI/CD |
 
-## 快速开始（开发）
+## 快速开始（后端开发）
 ```bash
-# 1. 起依赖
-cd deploy && docker compose up -d mysql redis
+# 1. 本机起 MySQL + Redis（已安装则跳过），建库
+mysql -uroot -e "CREATE DATABASE IF NOT EXISTS accounting DEFAULT CHARSET utf8mb4;"
+mysql -uroot accounting < server/migrations/001_init.sql
+mysql -uroot accounting < server/migrations/002_seed_categories.sql
 
 # 2. 后端
 cd server
-cp configs/config.example.yaml configs/config.yaml  # 填本地配置
-go run ./cmd/server
-
-# 3. 前端
-cd web
-pnpm install && pnpm dev
+cp configs/config.example.yaml configs/config.yaml   # 填本地配置
+# 敏感值用环境变量：ACCT_MYSQL_PASSWORD / ACCT_REDIS_PASSWORD / ACCT_JWT_SECRET
+go run ./cmd/server -c configs/config.yaml            # 监听 :8080
 ```
 详见 [08-开发与部署文档](./docs/08-开发与部署文档.md)。
 
