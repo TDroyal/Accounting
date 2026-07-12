@@ -37,6 +37,7 @@ import { TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { getDaily } from '@/api/statistics'
 import { formatAmount, formatRatio, today } from '@/utils/format'
+import { KITTY_PALETTE, KITTY_TOOLTIP } from '@/utils/palette'
 import { useResponsive } from '@/composables/useResponsive'
 
 echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer])
@@ -62,12 +63,14 @@ function renderPie() {
     value: c.amount
   }))
   chart.setOption({
-    tooltip: { trigger: 'item', formatter: '{b}: ¥{c} ({d}%)' },
-    legend: { bottom: 0, type: 'scroll' },
+    color: KITTY_PALETTE,
+    tooltip: { trigger: 'item', formatter: '{b}: ¥{c} ({d}%)', ...KITTY_TOOLTIP },
+    legend: { bottom: 0, type: 'scroll', textStyle: { color: '#9a7686' } },
     series: [{
       type: 'pie', radius: isMobile.value ? '55%' : '60%',
       data,
-      label: { formatter: '{b}\n{d}%' }
+      label: { formatter: '{b}\n{d}%', color: '#5a3d4a' },
+      itemStyle: { borderColor: '#fff', borderWidth: 2 }
     }]
   }, true)
 }

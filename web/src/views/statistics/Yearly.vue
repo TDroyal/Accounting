@@ -31,6 +31,7 @@ import { TooltipComponent, GridComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { getYearly } from '@/api/statistics'
 import { formatAmount, currentYear } from '@/utils/format'
+import { KITTY_BAR, KITTY_PALETTE, KITTY_TOOLTIP } from '@/utils/palette'
 
 echarts.use([BarChart, TooltipComponent, GridComponent, CanvasRenderer])
 
@@ -53,11 +54,16 @@ function renderTrend() {
   if (!trendChart) trendChart = echarts.init(trendRef.value)
   const trend = stat.value?.trend || []
   trendChart.setOption({
-    tooltip: { trigger: 'axis' },
+    color: [KITTY_BAR],
+    tooltip: { trigger: 'axis', ...KITTY_TOOLTIP },
     grid: { left: 40, right: 16, top: 16, bottom: 24 },
-    xAxis: { type: 'category', data: trend.map(t => t.month) },
-    yAxis: { type: 'value' },
-    series: [{ type: 'bar', data: trend.map(t => t.amount) }]
+    xAxis: { type: 'category', data: trend.map(t => t.month), axisLine: { lineStyle: { color: '#ffd0e0' } } },
+    yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: '#ffe0ec' } } },
+    series: [{
+      type: 'bar', data: trend.map(t => t.amount),
+      itemStyle: { color: KITTY_BAR, borderRadius: [8, 8, 0, 0] },
+      barWidth: '45%'
+    }]
   }, true)
 }
 
@@ -66,11 +72,16 @@ function renderTop() {
   if (!topChart) topChart = echarts.init(topRef.value)
   const top = stat.value?.top_categories || []
   topChart.setOption({
-    tooltip: { trigger: 'axis' },
+    color: [KITTY_PALETTE[0]],
+    tooltip: { trigger: 'axis', ...KITTY_TOOLTIP },
     grid: { left: 80, right: 16, top: 16, bottom: 24 },
-    xAxis: { type: 'value' },
-    yAxis: { type: 'category', data: top.map(c => c.category_name || `分类${c.category_id}`) },
-    series: [{ type: 'bar', data: top.map(c => c.amount) }]
+    xAxis: { type: 'value', axisLine: { lineStyle: { color: '#ffd0e0' } }, splitLine: { lineStyle: { color: '#ffe0ec' } } },
+    yAxis: { type: 'category', data: top.map(c => c.category_name || `分类${c.category_id}`), axisLine: { lineStyle: { color: '#ffd0e0' } } },
+    series: [{
+      type: 'bar', data: top.map(c => c.amount),
+      itemStyle: { color: KITTY_BAR, borderRadius: [0, 8, 8, 0] },
+      barWidth: '55%'
+    }]
   }, true)
 }
 

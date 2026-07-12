@@ -35,6 +35,7 @@ import { TooltipComponent, GridComponent, LegendComponent } from 'echarts/compon
 import { CanvasRenderer } from 'echarts/renderers'
 import { getMonthly } from '@/api/statistics'
 import { formatAmount, currentMonth } from '@/utils/format'
+import { KITTY_LINE, KITTY_AREA, KITTY_BAR, KITTY_TOOLTIP } from '@/utils/palette'
 import { useResponsive } from '@/composables/useResponsive'
 
 echarts.use([LineChart, BarChart, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer])
@@ -68,11 +69,17 @@ function renderLine() {
   if (!lineChart) lineChart = echarts.init(lineRef.value)
   const trend = stat.value?.trend || []
   lineChart.setOption({
-    tooltip: { trigger: 'axis' },
+    color: [KITTY_LINE],
+    tooltip: { trigger: 'axis', ...KITTY_TOOLTIP },
     grid: { left: 40, right: 16, top: 16, bottom: 24 },
-    xAxis: { type: 'category', data: trend.map(t => t.date.slice(8)) },
-    yAxis: { type: 'value' },
-    series: [{ type: 'line', smooth: true, data: trend.map(t => t.amount), areaStyle: {} }]
+    xAxis: { type: 'category', data: trend.map(t => t.date.slice(8)), axisLine: { lineStyle: { color: '#ffd0e0' } } },
+    yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: '#ffe0ec' } } },
+    series: [{
+      type: 'line', smooth: true, data: trend.map(t => t.amount),
+      areaStyle: { color: KITTY_AREA },
+      itemStyle: { color: KITTY_LINE },
+      lineStyle: { width: 3 }
+    }]
   }, true)
 }
 
@@ -81,11 +88,16 @@ function renderBar() {
   if (!barChart) barChart = echarts.init(barRef.value)
   const cats = (stat.value?.categories || []).slice().sort((a, b) => b.amount - a.amount)
   barChart.setOption({
-    tooltip: { trigger: 'axis' },
+    color: [KITTY_BAR],
+    tooltip: { trigger: 'axis', ...KITTY_TOOLTIP },
     grid: { left: 80, right: 16, top: 16, bottom: 24 },
-    xAxis: { type: 'value' },
-    yAxis: { type: 'category', data: cats.map(c => c.category_name || `分类${c.category_id}`) },
-    series: [{ type: 'bar', data: cats.map(c => c.amount) }]
+    xAxis: { type: 'value', axisLine: { lineStyle: { color: '#ffd0e0' } }, splitLine: { lineStyle: { color: '#ffe0ec' } } },
+    yAxis: { type: 'category', data: cats.map(c => c.category_name || `分类${c.category_id}`), axisLine: { lineStyle: { color: '#ffd0e0' } } },
+    series: [{
+      type: 'bar', data: cats.map(c => c.amount),
+      itemStyle: { color: KITTY_BAR, borderRadius: [0, 8, 8, 0] },
+      barWidth: '55%'
+    }]
   }, true)
 }
 
