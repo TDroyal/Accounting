@@ -10,6 +10,8 @@
         <el-menu-item index="/statistics/yearly" :icon="DataLine">年统计</el-menu-item>
         <el-menu-item index="/transactions" :icon="List">流水</el-menu-item>
         <el-menu-item index="/categories" :icon="Files">分类</el-menu-item>
+        <el-menu-item index="/budget" :icon="Wallet">预算</el-menu-item>
+        <el-menu-item index="/accounts" :icon="CreditCard">账户</el-menu-item>
       </el-menu>
       <div class="sidebar-footer">
         <el-button type="primary" :icon="Plus" @click="$router.push('/transactions/new')">记一笔</el-button>
@@ -40,7 +42,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { PieChart, TrendCharts, DataLine, List, Files, Plus, SwitchButton } from '@element-plus/icons-vue'
+import { PieChart, TrendCharts, DataLine, List, Files, Plus, SwitchButton, Wallet, CreditCard } from '@element-plus/icons-vue'
 import { useResponsive } from '@/composables/useResponsive'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessageBox } from 'element-plus'
@@ -62,7 +64,9 @@ const pageTitle = computed(() => ({
   '/statistics/monthly': '月统计',
   '/statistics/yearly': '年统计',
   '/transactions': '流水',
-  '/categories': '分类管理'
+  '/categories': '分类管理',
+  '/budget': '预算',
+  '/accounts': '账户'
 }[activeMenu.value] || 'Accounting'))
 
 // 登出确认

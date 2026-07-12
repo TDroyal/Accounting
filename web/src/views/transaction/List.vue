@@ -10,6 +10,7 @@
           <el-option v-for="c in categoryStore.flatList" :key="c.id" :label="c.full" :value="c.id" />
         </el-select>
         <el-button type="primary" @click="loadList(1)">查询</el-button>
+        <el-button :icon="Download" @click="onExport">导出 CSV</el-button>
       </div>
 
       <el-table :data="list" v-loading="loading" style="margin-top:12px">
@@ -40,7 +41,8 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { listTransactions, deleteTransaction } from '@/api/transactions'
+import { Download } from '@element-plus/icons-vue'
+import { listTransactions, deleteTransaction, exportTransactions } from '@/api/transactions'
 import { useCategoryStore } from '@/stores/category'
 import { formatAmount } from '@/utils/format'
 
@@ -75,6 +77,20 @@ async function onDelete(row) {
   await deleteTransaction(row.id)
   ElMessage.success('已删除')
   loadList(page.value)
+}
+
+// 导出 CSV：下载后端返回的 blob
+async function onExport() {
+  const blob = await exportTransactions({
+    from: filters.from, to: filters.to, format: 'csv'
+  })
+  const url = URL.createObjectURL(new Blob([blob]))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `accounting_${filters.from || 'all'}_${filters.to || 'all'}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+  ElMessage.success('导出成功')
 }
 
 onMounted(() => {

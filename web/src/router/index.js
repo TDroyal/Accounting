@@ -26,7 +26,9 @@ const routes = [
       { path: 'statistics/daily', name: 'stat-daily', component: () => import('@/views/statistics/Daily.vue') },
       { path: 'statistics/monthly', name: 'stat-monthly', component: () => import('@/views/statistics/Monthly.vue') },
       { path: 'statistics/yearly', name: 'stat-yearly', component: () => import('@/views/statistics/Yearly.vue') },
-      { path: 'categories', name: 'categories', component: () => import('@/views/category/Index.vue') }
+      { path: 'categories', name: 'categories', component: () => import('@/views/category/Index.vue') },
+      { path: 'budget', name: 'budget', component: () => import('@/views/settings/Budget.vue') },
+      { path: 'accounts', name: 'accounts', component: () => import('@/views/settings/Accounts.vue') }
     ]
   },
   { path: '/:pathMatch(.*)*', redirect: '/' }
